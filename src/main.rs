@@ -1,3 +1,8 @@
+const GAMES: &str = include_str!("../answers.txt");
+
 fn main() {
-    println!("Hello, world!");
+    let guesser = wordle_solver::algorithms::Naive::new();
+    for answer in GAMES.split_whitespace() {
+        wordle_solver::play(answer, guesser);
+    }
 }
