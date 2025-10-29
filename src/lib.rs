@@ -48,7 +48,7 @@ fn get_letter_freq(s: &str) -> [u8; 26] {
     result
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd)]
 pub enum Correctness {
     /// Green
     Correct,
@@ -85,10 +85,49 @@ impl Correctness {
     }
 }
 
-#[derive(Debug)]
 pub struct Guess {
     pub word: String,
     pub mask: [Correctness; 5],
+}
+
+impl Guess {
+    pub fn matches(&self, word: &str) -> bool {
+        assert_eq!(self.word.len(), 5);
+        assert_eq!(word.len(), 5);
+        let mut freq = get_letter_freq(word);
+        // First, check with two fingers and consume greens
+        for ((g, &m), w) in self.word.bytes().zip(&self.mask).zip(word.bytes()) {
+            match g == w {
+                true => match m {
+                    Correctness::Correct => freq[(g - b'a') as usize] -= 1,
+                    _ => return false,
+                },
+                false => match m {
+                    Correctness::Correct => return false,
+                    _ => (),
+                },
+            }
+        }
+        // Second, check yellow characters exist and consume yellows
+        for (g, &m) in self.word.bytes().zip(&self.mask) {
+            if m == Correctness::Misplaced {
+                let i = (g - b'a') as usize;
+                if freq[i] == 0 {
+                    return false;
+                }
+                freq[i] -= 1;
+            }
+        }
+        // Last, check grays
+        for (g, &m) in self.word.bytes().zip(&self.mask) {
+            if m == Correctness::Wrong {
+                if freq[(g - b'a') as usize] != 0 {
+                    return false;
+                }
+            }
+        }
+        true
+    }
 }
 
 pub trait Guesser {
@@ -96,7 +135,16 @@ pub trait Guesser {
 }
 
 #[cfg(test)]
+macro_rules! mask {
+    (C) => {{ Correctness::Correct }};
+    (M) => {{ Correctness::Misplaced }};
+    (W) => {{ Correctness::Wrong }};
+    ($($c:tt)+) => {{[ $(mask!($c)),+ ]}}
+}
+
+#[cfg(test)]
 mod tests {
+
     mod game {
         use crate::{Guess, Guesser, Wordle};
 
@@ -190,13 +238,6 @@ mod tests {
     mod compute {
         use crate::{Correctness, get_letter_freq};
 
-        macro_rules! mask {
-            (C) => {{ Correctness::Correct }};
-            (M) => {{ Correctness::Misplaced }};
-            (W) => {{ Correctness::Wrong }};
-            ($($c:tt)+) => {{[ $(mask!($c)),+ ]}}
-        }
-
         #[test]
         fn all_green() {
             assert_eq!(
@@ -254,11 +295,64 @@ mod tests {
         }
 
         #[test]
-        fn should_not_complete_with_correct_one() {
+        fn should_not_compete_with_correct_ones() {
             assert_eq!(
                 Correctness::compute("babbb", "aaccc", &get_letter_freq("babbb")),
                 mask!(W C W W W)
             );
+        }
+    }
+
+    mod matches {
+        use crate::{Correctness, Guess};
+
+        #[test]
+        fn should_caught_by_the_fisrt_iteration() {
+            // answer is aabbc
+            let guess = Guess {
+                word: "bacdb".to_string(),
+                mask: mask!(M C W W M),
+            };
+            assert_eq!(guess.matches("bwxyz"), false, "the 1st char can't be 'b'");
+            assert_eq!(guess.matches("uwxyz"), false, "the 2nd char should be 'a'");
+            assert_eq!(guess.matches("uwcyz"), false, "the 3rd char can't be 'c'");
+            assert_eq!(guess.matches("uwxdz"), false, "the 4th char can't be 'd'");
+            assert_eq!(guess.matches("uwxyb"), false, "the 4th char can't be 'b'");
+        }
+
+        #[test]
+        fn should_caught_by_the_second_iteration() {
+            // answer is aabbc
+            let guess = Guess {
+                word: "bacdb".to_string(),
+                mask: mask!(M C W W M),
+            };
+            assert_eq!(guess.matches("xabxx"), false, "require two 'b'");
+            assert_eq!(guess.matches("xaxbx"), false, "require two 'b'");
+        }
+
+        #[test]
+        fn should_caught_by_the_last_iteration() {
+            // answer is aabbc
+            let guess = Guess {
+                word: "bacdb".to_string(),
+                mask: mask!(M C W W M),
+            };
+            assert_eq!(guess.matches("cabbx"), false, "can't have 'c'");
+            assert_eq!(guess.matches("xabbc"), false, "can't have 'c'");
+            assert_eq!(guess.matches("dabbx"), false, "can't have 'd'");
+            assert_eq!(guess.matches("xabbd"), false, "can't have 'd'");
+        }
+
+        #[test]
+        fn possible_guesses() {
+            // answer is aabbc
+            let guess = Guess {
+                word: "bacdb".to_string(),
+                mask: mask!(M C W W M),
+            };
+            assert_eq!(guess.matches("xabbx"), true);
+            assert_eq!(guess.matches("xabby"), true);
         }
     }
 }
