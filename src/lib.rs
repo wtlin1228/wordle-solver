@@ -25,6 +25,7 @@ impl Wordle {
         // We allow more to avoid chopping off the score distrubution for stats purposes.
         for i in 1..=32 {
             let guess = guesser.guess(&history);
+            println!("answer: {}, guess: {}", answer, guess);
             if guess == answer {
                 return Some(i);
             }
@@ -81,6 +82,17 @@ impl Correctness {
             }
         }
         c
+    }
+
+    pub fn patterns() -> impl Iterator<Item = [Self; 5]> {
+        itertools::iproduct!(
+            [Self::Correct, Self::Misplaced, Self::Wrong],
+            [Self::Correct, Self::Misplaced, Self::Wrong],
+            [Self::Correct, Self::Misplaced, Self::Wrong],
+            [Self::Correct, Self::Misplaced, Self::Wrong],
+            [Self::Correct, Self::Misplaced, Self::Wrong],
+        )
+        .map(|(a, b, c, d, e)| [a, b, c, d, e])
     }
 }
 

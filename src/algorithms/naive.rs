@@ -1,4 +1,4 @@
-use crate::{DICTIONARY, Guess, Guesser};
+use crate::{Correctness, DICTIONARY, Guess, Guesser};
 use std::collections::HashMap;
 
 pub struct Naive {
@@ -26,16 +26,40 @@ impl Naive {
 
 impl Guesser for Naive {
     fn guess(&mut self, history: &[Guess]) -> String {
+        if history.is_empty() {
+            return "tares".to_string();
+        }
+
         if let Some(last) = history.last() {
-            // TODO: update self.remaining base on history
             self.remaining.retain(|word, _| last.matches(word));
         }
 
+        let remaining_count: usize = self.remaining.iter().fold(0, |acc, (_, c)| acc + c);
+
         let mut best: Option<Candidate> = None;
-        for (&word, &count) in &self.remaining {
-            // TODO: how do we compute this?
-            // - SUM_i p_i * log_2(p_i)
-            let goodness = 0.0;
+        for (&word, _) in &self.remaining {
+            let mut sum = 0.0;
+            for pattern in Correctness::patterns() {
+                // considering a world where we _did_ guess `word` and got `pattern` as the
+                // correctness. now, compute what _then_ is left.
+                let mut in_pattern_total = 0;
+                for (candidate, count) in &self.remaining {
+                    let g = Guess {
+                        word: word.to_string(),
+                        mask: pattern,
+                    };
+                    if g.matches(candidate) {
+                        in_pattern_total += count;
+                    }
+                }
+                if in_pattern_total == 0 {
+                    continue;
+                }
+                // TODO: apply sigmoid
+                let p_of_this_pattern = in_pattern_total as f64 / remaining_count as f64;
+                sum += p_of_this_pattern * p_of_this_pattern.log2();
+            }
+            let goodness = -sum;
             if let Some(c) = &best {
                 // Is this one better?
                 if goodness > c.goodness {
