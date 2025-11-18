@@ -1,26 +1,10 @@
-# Profile
+# Profiling
 
-```bash
-pgrep -af wordle-solver # get process id
-#12345
-```
+https://github.com/jonhoo/inferno
 
-## Linux
+## Naive
 
-```bash
-perf record --call-graph dwarf -p 12345
-perf script | inferno-collapse-perf | inferno-flamegraph > perf.svg
-```
-
-## MacOS
-
-```bash
-sudo dtrace -x ustackframes=100 \
-  -n 'profile-997 /pid == $target/ { @[ustack()] = count(); }' \
-  -o out.stacks -p (pgrep -af wordle-solver)
-FlameGraph/stackcollapse.pl out.stacks > out.folded
-FlameGraph/flamegraph.pl out.folded > out.svg
-```
+![profiling naive](./screenshots/profiling_naive.png)
 
 # Reference
 
