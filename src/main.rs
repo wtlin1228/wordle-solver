@@ -17,6 +17,7 @@ struct Args {
 enum Implementation {
     Naive,
     Allocs,
+    Cache,
 }
 
 fn main() {
@@ -25,6 +26,7 @@ fn main() {
     match args.implementation {
         Implementation::Naive => play(wordle_solver::algorithms::Naive::new, args.max),
         Implementation::Allocs => play(wordle_solver::algorithms::Allocs::new, args.max),
+        Implementation::Cache => play(wordle_solver::algorithms::Cache::new, args.max),
     }
 }
 

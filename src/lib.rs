@@ -102,6 +102,44 @@ pub struct Guess<'a> {
 }
 
 impl<'a> Guess<'a> {
+    pub fn matches_with_letter_freq(&self, word: &str, letter_freq: &[u8; 26]) -> bool {
+        assert_eq!(self.word.len(), 5);
+        assert_eq!(word.len(), 5);
+        let mut freq = letter_freq.clone();
+        // First, check with two fingers and consume greens
+        for ((g, &m), w) in self.word.bytes().zip(&self.mask).zip(word.bytes()) {
+            match g == w {
+                true => match m {
+                    Correctness::Correct => freq[(g - b'a') as usize] -= 1,
+                    _ => return false,
+                },
+                false => match m {
+                    Correctness::Correct => return false,
+                    _ => (),
+                },
+            }
+        }
+        // Second, check yellow characters exist and consume yellows
+        for (g, &m) in self.word.bytes().zip(&self.mask) {
+            if m == Correctness::Misplaced {
+                let i = (g - b'a') as usize;
+                if freq[i] == 0 {
+                    return false;
+                }
+                freq[i] -= 1;
+            }
+        }
+        // Last, check grays
+        for (g, &m) in self.word.bytes().zip(&self.mask) {
+            if m == Correctness::Wrong {
+                if freq[(g - b'a') as usize] != 0 {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+
     pub fn matches(&self, word: &str) -> bool {
         assert_eq!(self.word.len(), 5);
         assert_eq!(word.len(), 5);
