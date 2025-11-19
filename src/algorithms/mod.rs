@@ -6,3 +6,6 @@ pub use allocs::Allocs;
 
 mod cache;
 pub use cache::Cache;
+
+mod vecrem;
+pub use vecrem::Vecrem;

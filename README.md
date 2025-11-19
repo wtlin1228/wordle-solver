@@ -46,6 +46,23 @@ $ perf script | inferno-collapse-perf | inferno-flamegraph > perf_cache.svg
 
 ![profiling cache](./perf_svgs/perf_cache.svg)
 
+## Vecrem
+
+```shell
+hyperfine \
+  -n cache "target/release/wordle-solver -i cache -m 10" \
+  -n vecrem "target/release/wordle-solver -i vecrem -m 10"
+
+# vecrem ran 1.93 ± 0.06 times faster than cache
+```
+
+```shell
+$ perf record --call-graph dwarf target/release/wordle-solver -i vecrem -m 10
+$ perf script | inferno-collapse-perf | inferno-flamegraph > perf_vecrem.svg
+```
+
+![profiling vecrem](./perf_svgs/perf_vecrem.svg)
+
 # Reference
 
 - [Implementing and Optimizing a Wordle Solver in Rust](https://youtu.be/doFowk4xj7Q)

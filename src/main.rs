@@ -18,6 +18,7 @@ enum Implementation {
     Naive,
     Allocs,
     Cache,
+    Vecrem,
 }
 
 fn main() {
@@ -27,6 +28,7 @@ fn main() {
         Implementation::Naive => play(wordle_solver::algorithms::Naive::new, args.max),
         Implementation::Allocs => play(wordle_solver::algorithms::Allocs::new, args.max),
         Implementation::Cache => play(wordle_solver::algorithms::Cache::new, args.max),
+        Implementation::Vecrem => play(wordle_solver::algorithms::Vecrem::new, args.max),
     }
 }
 
