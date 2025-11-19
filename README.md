@@ -4,7 +4,13 @@ https://github.com/jonhoo/inferno
 
 ## Naive
 
-![profiling naive](./screenshots/profiling_naive.png)
+![profiling naive](./perf_svgs/perf_naive.svg)
+
+## Allocs
+
+allocs ran 1.96 ± 0.04 times faster than naive
+
+![profiling allocs](./perf_svgs/perf_allocs.svg)
 
 # Reference
 

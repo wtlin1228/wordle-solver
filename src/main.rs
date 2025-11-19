@@ -16,6 +16,7 @@ struct Args {
 #[derive(ValueEnum, Debug, Clone)]
 enum Implementation {
     Naive,
+    Allocs,
 }
 
 fn main() {
@@ -23,6 +24,7 @@ fn main() {
 
     match args.implementation {
         Implementation::Naive => play(wordle_solver::algorithms::Naive::new, args.max),
+        Implementation::Allocs => play(wordle_solver::algorithms::Allocs::new, args.max),
     }
 }
 

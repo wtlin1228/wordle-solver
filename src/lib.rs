@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{borrow::Cow, collections::HashSet};
 
 pub mod algorithms;
 
@@ -32,7 +32,7 @@ impl Wordle {
             assert!(self.dictionary.contains(&guess[..]));
             let correctness = Correctness::compute(answer, &guess);
             history.push(Guess {
-                word: guess,
+                word: Cow::Owned(guess),
                 mask: correctness,
             })
         }
@@ -96,12 +96,12 @@ impl Correctness {
     }
 }
 
-pub struct Guess {
-    pub word: String,
+pub struct Guess<'a> {
+    pub word: Cow<'a, str>,
     pub mask: [Correctness; 5],
 }
 
-impl Guess {
+impl<'a> Guess<'a> {
     pub fn matches(&self, word: &str) -> bool {
         assert_eq!(self.word.len(), 5);
         assert_eq!(word.len(), 5);
@@ -292,12 +292,13 @@ mod tests {
 
     mod matches {
         use crate::{Correctness, Guess};
+        use std::borrow::Cow;
 
         #[test]
         fn should_caught_by_the_fisrt_iteration() {
             // answer is aabbc
             let guess = Guess {
-                word: "bacdb".to_string(),
+                word: Cow::Borrowed("bacdb"),
                 mask: mask!(M C W W M),
             };
             assert_eq!(guess.matches("bwxyz"), false, "the 1st char can't be 'b'");
@@ -311,7 +312,7 @@ mod tests {
         fn should_caught_by_the_second_iteration() {
             // answer is aabbc
             let guess = Guess {
-                word: "bacdb".to_string(),
+                word: Cow::Borrowed("bacdb"),
                 mask: mask!(M C W W M),
             };
             assert_eq!(guess.matches("xabxx"), false, "require two 'b'");
@@ -322,7 +323,7 @@ mod tests {
         fn should_caught_by_the_last_iteration() {
             // answer is aabbc
             let guess = Guess {
-                word: "bacdb".to_string(),
+                word: Cow::Borrowed("bacdb"),
                 mask: mask!(M C W W M),
             };
             assert_eq!(guess.matches("cabbx"), false, "can't have 'c'");
@@ -335,7 +336,7 @@ mod tests {
         fn possible_guesses() {
             // answer is aabbc
             let guess = Guess {
-                word: "bacdb".to_string(),
+                word: Cow::Borrowed("bacdb"),
                 mask: mask!(M C W W M),
             };
             assert_eq!(guess.matches("xabbx"), true);
