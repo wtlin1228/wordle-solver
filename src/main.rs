@@ -20,6 +20,7 @@ enum Implementation {
     Cache,
     Vecrem,
     Weight,
+    Prune,
 }
 
 fn main() {
@@ -31,6 +32,7 @@ fn main() {
         Implementation::Cache => play(wordle_solver::algorithms::Cache::new, args.max),
         Implementation::Vecrem => play(wordle_solver::algorithms::Vecrem::new, args.max),
         Implementation::Weight => play(wordle_solver::algorithms::Weight::new, args.max),
+        Implementation::Prune => play(wordle_solver::algorithms::Prune::new, args.max),
     }
 }
 

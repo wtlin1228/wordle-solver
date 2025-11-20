@@ -67,6 +67,16 @@ $ perf script | inferno-collapse-perf | inferno-flamegraph > perf_vecrem.svg
 
 Improve the average score to 3.94 from 4.19.
 
+## Prune
+
+```shell
+hyperfine \
+  -n weight "target/release/wordle-solver -i weight -m 10" \
+  -n prune "target/release/wordle-solver -i prune -m 10"
+
+# prune ran 38.25 ± 0.56 times faster than weight
+```
+
 # Reference
 
 - [Implementing and Optimizing a Wordle Solver in Rust](https://youtu.be/doFowk4xj7Q)
