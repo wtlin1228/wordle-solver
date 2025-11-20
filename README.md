@@ -63,6 +63,10 @@ $ perf script | inferno-collapse-perf | inferno-flamegraph > perf_vecrem.svg
 
 ![profiling vecrem](./perf_svgs/perf_vecrem.svg)
 
+## Weight
+
+Improve the average score to 3.94 from 4.19.
+
 # Reference
 
 - [Implementing and Optimizing a Wordle Solver in Rust](https://youtu.be/doFowk4xj7Q)

@@ -19,6 +19,7 @@ enum Implementation {
     Allocs,
     Cache,
     Vecrem,
+    Weight,
 }
 
 fn main() {
@@ -29,6 +30,7 @@ fn main() {
         Implementation::Allocs => play(wordle_solver::algorithms::Allocs::new, args.max),
         Implementation::Cache => play(wordle_solver::algorithms::Cache::new, args.max),
         Implementation::Vecrem => play(wordle_solver::algorithms::Vecrem::new, args.max),
+        Implementation::Weight => play(wordle_solver::algorithms::Weight::new, args.max),
     }
 }
 
@@ -37,8 +39,22 @@ where
     G: Guesser,
 {
     let wordle = wordle_solver::Wordle::new();
+    let mut score = 0;
+    let mut games = 0;
     for answer in GAMES.split_whitespace().take(max.unwrap_or(usize::MAX)) {
         let guesser = (mk)();
-        wordle.play(answer, guesser);
+        match wordle.play(answer, guesser) {
+            Some(s) => {
+                score += s;
+                games += 1;
+                println!("guessed {} in {}", answer, s);
+            }
+            None => {
+                eprintln!("failed to guess {}", answer);
+            }
+        }
+    }
+    if games != 0 {
+        println!("average score: {:.2}", score as f64 / games as f64);
     }
 }

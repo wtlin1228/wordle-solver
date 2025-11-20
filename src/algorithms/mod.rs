@@ -9,3 +9,6 @@ pub use cache::Cache;
 
 mod vecrem;
 pub use vecrem::Vecrem;
+
+mod weight;
+pub use weight::Weight;

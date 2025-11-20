@@ -25,7 +25,6 @@ impl Wordle {
         // We allow more to avoid chopping off the score distrubution for stats purposes.
         for i in 1..=32 {
             let guess = guesser.guess(&history);
-            println!("answer: {}, guess: {}", answer, guess);
             if guess == answer {
                 return Some(i);
             }
