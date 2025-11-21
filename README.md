@@ -77,6 +77,16 @@ hyperfine \
 # prune ran 38.25 ± 0.56 times faster than weight
 ```
 
+## Cutoff
+
+```shell
+hyperfine \
+  -n prune "target/release/wordle-solver -i prune" \
+  -n cutoff "target/release/wordle-solver -i cutoff"
+
+# cutoff ran 1.17 ± 0.04 times faster than prune
+```
+
 # Reference
 
 - [Implementing and Optimizing a Wordle Solver in Rust](https://youtu.be/doFowk4xj7Q)

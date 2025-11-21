@@ -21,6 +21,7 @@ enum Implementation {
     Vecrem,
     Weight,
     Prune,
+    Cutoff,
 }
 
 fn main() {
@@ -33,6 +34,7 @@ fn main() {
         Implementation::Vecrem => play(wordle_solver::algorithms::Vecrem::new, args.max),
         Implementation::Weight => play(wordle_solver::algorithms::Weight::new, args.max),
         Implementation::Prune => play(wordle_solver::algorithms::Prune::new, args.max),
+        Implementation::Cutoff => play(wordle_solver::algorithms::Cutoff::new, args.max),
     }
 }
 
